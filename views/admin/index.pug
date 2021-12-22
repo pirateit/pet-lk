@@ -1,0 +1,26 @@
+extends ../layout
+
+block content
+  .wrapper
+    include ../header
+    .container.content
+      include ../nav
+      main.main
+        section
+          h2 Панель администратора
+          .admin
+            .admin__item
+              .admin__content
+                img.admin__content-icon(src="/img/admin/request.svg", width="48", height = "48", alt="")
+                | Заявки
+                a.admin__content-link(href="/admin/requests")
+            .admin__item
+              .admin__content
+                img.admin__content-icon(src="/img/admin/users.svg", width="48", height = "48", alt="")
+                | Пользователи
+                a.admin__content-link(href="/admin/users")
+            .admin__item
+              .admin__content
+                img.admin__content-icon(src="/img/admin/services.svg", width="48", height = "48", alt="")
+                | Услуги
+                a.admin__content-link(href="/admin/services")

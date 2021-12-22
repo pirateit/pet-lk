@@ -1,0 +1,30 @@
+extends layout
+
+block content
+  .wrapper
+    include header
+    .container.content
+      include nav
+      main.main
+        section
+          h2 Мой кабинет
+          form.my__form#my__form(method="POST", action="/users/" + user.id)
+            h3 Личные данные
+            label(for="firstName") Имя:
+            input.input.input-text(type="text", name="firstName", id="firstName", data-validate-field="firstName", placeholder="Имя", value=user.firstName)
+            h3 Контакты для связи
+            label(for="phoneNumber") Телефон:
+            input.input.input-text(type="tel", name="phoneNumber", id="tel", data-validate-field="tel", placeholder="+7 (___) ___-__-__", value=user.phoneNumber.slice(1, 11))
+            h3 Смена пароля
+            label(for="password") Новый пароль:
+            input.input.input-text(type="password", name="password", id="password", data-validate-field="password", placeholder="Пароль")
+            label(for="repeat-password") Новый пароль повторно:
+            input.input.input-text#repeat-password(type="password", name="repeat-password", data-validate-field="repeat-password", placeholder="Пароль")
+            button.btn(type="submit") Сохранить
+          .login__center
+            .msg-error
+              a.msg-error__text#profile-delete(href="javascript:void(0)") Удалить мой профиль
+              .delete__form Все данные будут удалены окончательно, продолжить?
+                div
+                  input(type="hidden", value=user.id)
+                  button.btn.btn-error#delete-btn Удалить

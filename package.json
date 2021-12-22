@@ -1,0 +1,52 @@
+{
+  "name": "lk",
+  "version": "1.0.0",
+  "description": "Personal account system",
+  "scripts": {
+    "build-sass": "sass src/public/css/style.scss dist/public/css/style.css",
+    "build-ts": "tsc",
+    "build": "npm run build-sass && npm run build-ts && npm run copy-static-assets",
+    "copy-static-assets": "ts-node copyStaticAssets.ts",
+    "start": "node dist/server.js",
+    "watch-node": "nodemon dist/server.js",
+    "watch-sass": "sass --watch src/public/css/style.scss dist/public/css/style.css",
+    "watch-ts": "tsc -w",
+    "watch": "concurrently npm:watch-*"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "connect-redis": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.2",
+    "passport": "^0.5.0",
+    "passport-local": "^1.0.0",
+    "pg": "^8.7.1",
+    "pg-hstore": "^2.3.4",
+    "pug": "^3.0.2",
+    "redis": "^4.0.0",
+    "sequelize": "^6.12.0-alpha.1"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
+    "@types/concurrently": "^6.4.0",
+    "@types/express": "^4.17.13",
+    "@types/express-serve-static-core": "^4.17.26",
+    "@types/express-session": "^1.17.4",
+    "@types/node": "^17.0.0",
+    "@types/passport": "^1.0.7",
+    "@types/passport-local": "^1.0.34",
+    "@types/redis": "^4.0.11",
+    "@types/shelljs": "^0.8.10",
+    "@types/validator": "^13.7.0",
+    "concurrently": "^6.5.1",
+    "nodemon": "^2.0.15",
+    "sass": "^1.45.0",
+    "shelljs": "^0.8.4",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.4"
+  }
+}

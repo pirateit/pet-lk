@@ -1,0 +1,52 @@
+extends ../layout
+
+block content
+  .wrapper
+    include ../header
+    .container.content
+      include ../nav
+      main.main
+        section
+          .control
+            a.control__link(href="/admin/users")
+              span.btn-control
+              | Назад
+        section
+          h2 Данные пользователя
+          div
+            .request__data-row
+              span.request__data-name Имя:&nbsp;
+              if user.firstName
+                | #{user.firstName}
+              else
+                | -
+            .request__data-row
+              span.request__data-name Номер телефона:&nbsp;
+              | #{user.phoneNumber}
+        section
+          h2 Заявки
+          div
+            if requests.length !== 0
+              .table__head
+                .table__cell.table__cell-date.first Дата
+                .table__cell.table__cell-name Услуга
+                .table__cell.table__cell-hidden Ед. изм.
+                .table__cell.table__cell-hidden Кол-во
+                .table__cell.table__cell-hidden Цена
+                .table__cell.table__cell-total Сумма
+                .table__cell.table__cell-hidden Выполнивший специалист
+              each request in requests
+                .table__row
+                  .table__cell.table__cell-date.first= request.createdAt
+                  .table__cell.table__cell-name
+                    = request.name
+                    br
+                    span.request__status(class=request.status.className) #{request.status.name}
+                  .table__cell.table__cell-hidden= request.unit
+                  .table__cell.table__cell-hidden= request.cout
+                  .table__cell.table__cell-hidden= request.cost
+                  .table__cell.table__cell-total= request.total
+                  .table__cell.table__cell-hidden= request.specialist
+                  a.table__row-link(href="/admin/requests/" + request.id)
+            else
+              .msg-info У пользователя ещё не было обращений

@@ -1,0 +1,52 @@
+extends ../layout
+
+block content
+  .wrapper
+    include ../header
+    .container.content
+      include ../nav
+      main.main
+        section
+          .control
+            a.control__link(href="/admin/requests")
+              span.btn-control
+              | Назад
+        section
+          h2 Заявка № #{request.id} от #{request.createdAt}
+          form#request__form(action="/admin/requests/" + request.id, method="post")
+            .request__data-row
+              span.request__data-name Статус:&nbsp;
+              select.request__status-select(name="status")
+                option(value="1", selected= request.status.id === 1) В обработке
+                option(value="2", selected= request.status.id === 2) Выполняется
+                option(value="3", selected= request.status.id === 3) Завершено
+                option(value="9", selected= request.status.id === 9) Отменено
+            .request__data
+              div
+                .request__data-row
+                  span.request__data-name Номер заявки:&nbsp;
+                  | #{request.id}
+                .request__data-row
+                  span.request__data-name Дата и время создания:&nbsp;
+                  | #{request.createdAt}
+                .request__data-row
+                  span.request__data-name Комментарий к заявке:&nbsp;
+                  | #{request.comment}
+                .request__data-row
+                  span.request__data-name Специалист, выполнивший заявку:&nbsp;
+                  | #{request.specialist}
+              div
+                .request__data-row
+                  span.request__data-name Услуга:&nbsp;
+                  | #{request.name}
+                .request__data-row
+                  span.request__data-name Стоимость:&nbsp;
+                  input.input.input-text(type="text", name="cost", id="cost", value=request.cost)
+                .request__data-row
+                  span.request__data-name Количество:&nbsp;
+                  input.input.input-text(type="text", name="count", id="count" value=request.count)
+                .request__data-row
+                  span.request__data-name Сумма:&nbsp;
+                  span.request-data__total= request.total
+                  input(type="hidden", name="total", id="total", value=request.total)
+            button.btn(type="submit") Сохранить

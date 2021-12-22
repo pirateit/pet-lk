@@ -1,0 +1,24 @@
+extends ../layout
+
+block content
+  .wrapper
+    include ../header
+    .container.content
+      include ../nav
+      main.main
+        section
+          .control
+            a.control__link(href="/admin")
+              span.btn-control
+              | Назад
+        section
+          h2 Пользователи
+          div
+            .table__head
+              .table__cell.table__cell-uname Имя
+              .table__cell.table__cell-uphone Номер телефона
+            each user in users
+              .table__row
+                .table__cell.table__cell-uname= user.firstName || '-'
+                .table__cell.table__cell-uphone= user.phoneNumber
+                a.table__row-link(href="/admin/users/" + user.id)

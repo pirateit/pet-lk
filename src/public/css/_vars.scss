@@ -1,0 +1,19 @@
+$rubik-font-path: '../fonts/';
+
+$breakpoints: (
+  'small':  ( min-width:  576px ),
+  'medium': ( min-width:  768px ),
+  'large':  ( min-width: 992px ),
+  'extra':  ( min-width: 1200px )
+) !default;
+
+$color-black: #000000;
+$color-dark-blue: #07122a;
+$color-blue: #252f44;
+$color-light-blue: #dfe0e3;
+$color-grey: #8698a8;
+$color-light-grey: #f5f5f7;
+$color-white: #ffffff;
+$color-green: #5abe27;
+$color-red: #c91d1d;
+$color-orange: #e8a530;

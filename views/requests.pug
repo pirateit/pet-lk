@@ -1,0 +1,56 @@
+extends layout
+
+block content
+  .wrapper
+    include header
+    .container.content
+      include nav
+      main.main
+        section
+          h2 Создать заявку
+          form.nr(method="POST" action="/requests")
+            .nr__inputs
+              label(for="service") Выберите одну или несколько услуг:
+              select.input(name="service", id="service", multiple, required)
+                optgroup(label="Компьютеры")
+                  each service in splitServices[1]
+                    option(value=service.id) #{service.name} (#{service.cost} &#8381;)
+                optgroup(label="Программы")
+                  each service in splitServices[2]
+                    option(value=service.id) #{service.name} (#{service.cost} &#8381;)
+                optgroup(label="Сети")
+                  each service in splitServices[3]
+                    option(value=service.id) #{service.name} (#{service.cost} &#8381;)
+                optgroup(label="Другое")
+                  each service in splitServices[0]
+                    option(value=service.id) #{service.name}
+              label(for="comment") Комментарий к заявке (не обязательно):
+              textarea.input.input-text(name="comment", id="comment", placeholder="Комментарий")
+              button.btn(type="submit") Отправить
+        section
+          h2 История заявок
+          div
+            if fullRequests.length !== 0
+              .table__head
+                .table__cell.table__cell-date.first Дата
+                .table__cell.table__cell-name Услуга
+                .table__cell.table__cell-hidden Ед. изм.
+                .table__cell.table__cell-hidden Кол-во
+                .table__cell.table__cell-hidden Цена
+                .table__cell.table__cell-total Сумма
+                .table__cell.table__cell-hidden Выполнивший специалист
+              each request in fullRequests
+                .table__row
+                  .table__cell.table__cell-date.first= request.createdAt
+                  .table__cell.table__cell-name
+                    = request.name
+                    br
+                    span.request__status(class=request.status.className) #{request.status.name}
+                  .table__cell.table__cell-hidden= request.unit
+                  .table__cell.table__cell-hidden= request.cout
+                  .table__cell.table__cell-hidden= request.cost
+                  .table__cell.table__cell-total= request.total
+                  .table__cell.table__cell-hidden= request.specialist
+                  a.table__row-link(href="/requests/" + request.id)
+            else
+              .msg-info У вас ещё не было обращений
