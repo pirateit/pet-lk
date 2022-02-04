@@ -1,5 +1,6 @@
 require('dotenv').config();
 import express from "express";
+import cors from 'cors';
 import session from 'express-session';
 var RedisStore = require('connect-redis')(session);
 import { redisClient } from './config/redis';
@@ -20,6 +21,9 @@ app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+  origin: '*'
+}));
 app.use(session({
   store: new RedisStore({ client: redisClient }),
   secret: process.env.SESSION_SECRET,

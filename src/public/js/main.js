@@ -109,21 +109,21 @@ window.addEventListener('DOMContentLoaded', function () {
       },
       messages: {
         tel: {
-          required: 'Обязательное поле',
-          function: 'Номер указан неверно'
+          required: '- Обязательное поле',
+          function: '- Номер указан неверно'
         },
         'confirm-code': {
-          required: 'Обязательное поле',
-          function: 'Введите корректные 4 цифры кода'
+          required: '- Обязательное поле',
+          function: '- Введите корректные 4 цифры кода'
         },
         password: {
-          required: 'Обязательное поле',
-          minLength: 'Минимальная длина пароля - 6 символов'
+          required: '- Обязательное поле',
+          minLength: '- Минимальная длина пароля - 6 символов'
         },
         'repeat-password': {
-          required: 'Обязательное поле',
-          minLength: 'Минимальная длина пароля - 6 символов',
-          function: 'Пароли не совпадают'
+          required: '- Обязательное поле',
+          minLength: '- Минимальная длина пароля - 6 символов',
+          function: '- Пароли не совпадают'
         }
       }
     });
@@ -159,7 +159,7 @@ window.addEventListener('DOMContentLoaded', function () {
         if (!phone1.promisesRemote.length) {
           if (phone1.isValidationSuccess) {
             // phone1.validationSuccess();
-            fetch('http://192.168.0.244:8080/getRegisterCode?phone=' + phoneNumber)
+            fetch('http://localhost:8080/getRegisterCode?phone=' + phoneNumber)
               .then(res => {
                 switch (res.status) {
                   case 204: {
@@ -192,7 +192,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
         if (phone1.isValidationSuccess) {
           // phone1.validationSuccess();
-          fetch('http://192.168.0.244:8080/getRegisterCode?phone=' + phoneNumber)
+          fetch('http://localhost:8080/getRegisterCode?phone=' + phoneNumber)
             .then(res => {
               if (res.status === 200) {
                 document.querySelector('.msg-warning__text').style.display = 'none';

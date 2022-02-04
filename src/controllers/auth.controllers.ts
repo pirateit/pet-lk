@@ -24,17 +24,21 @@ export const getRegisterCode = async (req: Request, res: Response) => {
 
     return String(Math.floor(Math.random() * (max - min) + min));
   })();
-  console.log(confirmCode);
+
   const message = `Код подтверждения: ${confirmCode}.`;
 
-  function makeRequest(): Promise<any> {
+  function makeRequest(phoneNumber, message): Promise<any> {
     return new Promise((resolve, reject) => {
       const request = https.request(`https://sms.ru/sms/send?api_id=${process.env.SMS_API}&to=${phoneNumber}&msg=${message}&json=1`, (response) => {
-        if (response.statusCode !== 100) {
-          return res.status(503).send({ error: 'error', message: 'Произошла внутренняя ошибка. Пожалуйста, попробуйте позже.' });
-        }
+        // if (response.status_code !== 100) {
+        //   console.log(response.status_code)
+        //   reject();
+        // }
 
         response.on('data', (data) => {
+          if (JSON.parse(data).status_code !== 100) {
+            reject();
+          }
           resolve(JSON.parse(data));
         });
       });
@@ -47,13 +51,13 @@ export const getRegisterCode = async (req: Request, res: Response) => {
     });
   }
 
-  makeRequest()
-    .then(async (res) => {
-      if (res.status_code === 100) {
+  makeRequest(phoneNumber, message)
+    .then(async (response) => {
         await setAsync(phoneNumber, confirmCode, 'EX', 60 * 15); // Save SMS code in Redis for 15 minutes
-      }
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      return res.status(503).send({ error: 'error', message: 'Произошла внутренняя ошибка. Пожалуйста, попробуйте позже.' });
+    });
 
   res.sendStatus(200);
 };
