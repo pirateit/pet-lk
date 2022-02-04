@@ -18,19 +18,21 @@ export const getRegisterCode = async (req: Request, res: Response) => {
   }
 
   // Generate 4-digits code
-  const confirmCode = ((min = 1000, max = 9999) => {
+  const confirmCode = ((min = 1000, max = 9999): String => {
     min = Math.ceil(min);
     max = Math.floor(max);
+
     return String(Math.floor(Math.random() * (max - min) + min));
   })();
+  console.log(confirmCode);
   const message = `Код подтверждения: ${confirmCode}.`;
 
   function makeRequest(): Promise<any> {
     return new Promise((resolve, reject) => {
       const request = https.request(`https://sms.ru/sms/send?api_id=${process.env.SMS_API}&to=${phoneNumber}&msg=${message}&json=1`, (response) => {
-        if (response.statusCode !== 200) {
-          return res.sendStatus(504);
-        }
+        // if (response.statusCode !== 100) {
+        //   return res.status(503).send({ error: 'error', message: 'Произошла внутренняя ошибка. Пожалуйста, попробуйте позже.' });
+        // }
 
         response.on('data', (data) => {
           resolve(JSON.parse(data));
@@ -45,12 +47,12 @@ export const getRegisterCode = async (req: Request, res: Response) => {
     });
   }
 
-  await makeRequest()
+  makeRequest()
     .then(async (res) => {
-      if (res.status_code === 100) {
-        console.log(confirmCode)
-        setAsync(phoneNumber, confirmCode, 'EX', 60 * 15); // Save SMS code for 15 minutes
-      }
+      // if (res.status_code === 100) {
+
+        await setAsync(phoneNumber, confirmCode, 'EX', 60 * 15); // Save SMS code in Redis for 15 minutes
+      // }
     })
     .catch(err => console.log(err));
 
@@ -69,27 +71,31 @@ export const register = async (req: Request, res: Response) => {
   const user = await User.findOne({ where: { phoneNumber: Number(phoneNumber) } });
 
   if (user) {
-    return res.render('register', { error: 'existsError' });
+    return res.render('register', { error: 'existsError', message: 'Данный номер уже зарегистрирован.' });
   }
 
   const value = await getAsync(phoneNumber);
 
   if (value !== confirmCode) {
-    return res.render('register', { error: 'codeError' });
+    return res.status(406).render('register', { error: 'codeError', message: 'Неверно указан код подтверждения' });
   }
 
   await User.create({ phoneNumber: Number(phoneNumber), password })
 
-  res.status(201).redirect('/');
+  res.status(201).render('login', { message: 'Учётная запись успешно создана' });
 };
 
 export const logIn = (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate('local', function (err, user, info) {
-    if (err) { return next(err); }
-    if (!user) { return res.render('login', { error: true }); }
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return res.render('login', { error: info.message, phoneNumber: req.body.phoneNumber });
+    }
     req.login(user, function (err) {
       if (err) { return next(err); }
-      if (user.role === 1)  { return res.redirect('/admin'); }
+
       return res.redirect('/requests');
     });
   })(req, res, next);

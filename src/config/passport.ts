@@ -9,17 +9,20 @@ passport.use(new LocalStrategy({
 },
   async (login, password, done) => {
     let phoneNumber = login.replace(/[\s()\-\+]/g, '');
-
     const user = await User.findOne({ where: { phoneNumber: Number(phoneNumber) } });
 
     if (!user) {
-      return done(null, false, { message: 'wrong phoneNumber.\n' });
+      const error = new Error('Wrong phone number');
+
+      return done(null, false, { message: 'Неверный номер телефона или пароль!'});
     }
 
     const validate = await user.isValidPassword(password)
 
     if (!validate) {
-      return done(null, false, { message: 'wrong pass.\n' });
+      const error = new Error('Wrong password');
+
+      return done(null, false, { message: 'Неверный номер телефона или пароль!' });
     }
 
     return done(null, user);

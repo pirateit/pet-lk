@@ -1,0 +1,35 @@
+extends layout
+
+block content
+  .wrapper
+    div.nav
+      include nav
+    main.main
+      h2 Новая заявка
+      section.block
+        form(method="POST", action="/requests")
+          .input-section
+            label(for="services") Выберите одну или несколько услуг:
+            select.input(name="services", id="services", size="8", multiple, required)
+              optgroup(label="Компьютеры")
+                each service in splitServices[1]
+                  option(value=service.id) #{service.name} (#{service.cost} &#8381;)
+              optgroup(label="Программы")
+                each service in splitServices[2]
+                  option(value=service.id) #{service.name} (#{service.cost} &#8381;)
+              optgroup(label="Сети")
+                each service in splitServices[3]
+                  option(value=service.id) #{service.name} (#{service.cost} &#8381;)
+              optgroup(label="Другое")
+                each service in splitServices[0]
+                  option(value=service.id) #{service.name}
+          .input-section
+            label(for="date") Удобная дата и время приёма (не обязательно):
+            input.input(type="datetime-local", name="scheduledTime")
+          .input-section
+            label(for="comment") Комментарий к заявке (не обязательно):
+            textarea.input.input-textfield(name="comment", id="comment", placeholder="Комментарий", rows="4")
+          .input-section.center
+            button.btn.btn_fill(type="submit") Отправить
+    aside.info
+      include sidebar

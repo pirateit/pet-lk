@@ -1,0 +1,29 @@
+extends layout
+
+block content
+  .wrapper
+    div.nav
+      include nav
+    main.main.full-width
+      section
+        h2 Все пользователи
+        .block
+          | Фильтр:
+          .table
+            .flex-table.header
+              .flex-row.first.table__id ID
+              .flex-row.table__name Имя
+              .flex-row.table__name Телефон
+              .flex-row.table__role Роль
+              .flex-row.table__registered Дата регистрации
+            each usr of users
+              .flex-table.row
+                a.admin-requests__link(href="/users/" + usr.id)
+                .flex-row.first.table__id= usr.id
+                .flex-row.table__name
+                  = usr.firstName || '-'
+                .flex-row.table__name.phone= usr.phoneNumber
+                .flex-row.table__role= usr.role.name
+                .flex-row.table__registered= usr.createdAt
+    aside.info
+      include sidebar

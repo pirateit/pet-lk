@@ -1,195 +1,158 @@
 import { Request, Response } from 'express';
+import { CustomRequest } from '../middleware/interface';
 import User from '../models/user';
 import Srequest from '../models/srequest';
 import Service from '../models/service';
-import { statusColor } from '../middleware/request';
+import { getStatuses, statusColor } from '../middleware/request';
+import { convertTime } from '../middleware/time';
 
-export const getAdminPage = (req: Request, res: Response) => {
-  const user = req.user as User;
+export async function getRequests(req: CustomRequest, res: Response) {
+  if (req.profile.role.id === 1) {
+    const requestsData = await Srequest.findAll({
+      order: [
+        ['status', 'ASC'],
+        ['id', 'DESC'],
+      ],
+      include: [{
+        model: Service,
+        as: 'service',
+        attributes: ['name']
+      }, {
+        model: User,
+        as: 'user',
+        attributes: ['firstName', 'phoneNumber']
+      }]
+    })
 
-  res.render('admin/index', { title: 'Панель администратора', reducedName: user.firstName ?? 'Клиент' });
-};
+    const requests = requestsData.map(request => {
+      return {
+        id: request.id,
+        user: {
+          firstName: request.user.firstName,
+          phoneNumber: String(request.user.phoneNumber).substring(1),
+        },
+        service: request.service.name,
+        total: request.total,
+        status: statusColor(request.status),
+        createdAt: convertTime(request.createdAt),
+        scheduledTime: convertTime(request.scheduledTime),
+      };
+    });
 
-export const getRequest = async (req: Request, res: Response) => {
-  const user = req.user as User;
-  const srequestId = req.params.id;
-  const srequestData = await Srequest.findByPk(srequestId, { include: [{
-    model: Service,
-    as: 'service',
-    attributes: ['name', 'unit']
-  }, {
-    model: User,
-    as:'specialist',
-    attributes: ['firstName']
-  }] });
+    return res.render('requests', { title: 'Все заявки', user: req.profile, stats: req.stats, requests });
+  }
 
-  if (srequestData.userId !== user.id) {
+  var requestsData = await Srequest.findAll({
+    where: { userId: req.profile.id }, include: {
+      model: Service,
+      as: 'service',
+      attributes: ['name']
+    }
+  })
+
+  var allRequests = requestsData.map(request => {
+    return {
+      id: request.id,
+      createdAt: convertTime(request.createdAt),
+      name: request.service.name,
+      total: request.total,
+      scheduledTime: convertTime(request.scheduledTime),
+      status: statusColor(request.status),
+    };
+  });
+
+  var activeRequests = allRequests.filter(req => req.status.id < 3)
+
+  var completedRequests = {
+    items: [...allRequests.filter(req => req.status.id > 2)],
+    total: allRequests.filter(req => req.status.id > 2).length
+  }
+
+  res.render('requests', { title: 'Заявки', user: req.profile, activeRequests, completedRequests });
+}
+
+export async function getRequest(req: CustomRequest, res: Response) {
+  var requestId = req.params.id;
+  var requestData = await Srequest.findByPk(requestId, {
+    include: [{
+      model: Service,
+      as: 'service',
+      attributes: ['name', 'unit']
+    }, {
+      model: User,
+      as: 'specialist',
+      attributes: ['id', 'firstName']
+    }]
+  });
+  var request = {
+    id: requestData.id,
+    createdAt: convertTime(requestData.createdAt),
+    name: requestData.service.name,
+    unit: requestData.service.unit,
+    count: requestData.count,
+    cost: requestData.cost,
+    total: requestData.total,
+    scheduledTime: convertTime(requestData.scheduledTime),
+    status: statusColor(requestData.status),
+    comment: requestData.comment ?? '-',
+    specialist: requestData.specialist,
+  };
+
+  if (req.profile.role.id === 1) {
+    const statuses = getStatuses();
+
+    return res.render('request', { title: `Заявка № ${request.id}`, user: req.profile, stats: req.stats, request, statuses });
+  }
+
+  if (requestData.userId !== req.profile.id) {
     res.status(401).redirect('/requests');
   }
 
-  const formattedDate = `${srequestData.createdAt.toLocaleDateString()}  ${srequestData.createdAt.toTimeString().slice(0, 5)}`;
-  const request = {
-    id: srequestData.id,
-    createdAt: formattedDate,
-    name: srequestData.service.name,
-    unit: srequestData.service.unit,
-    count: srequestData.count,
-    cost: srequestData.cost,
-    total: srequestData.total,
-    status: statusColor(srequestData.status),
-    comment: srequestData.comment ?? '-',
-    specialist: srequestData.specialist?.firstName ?? '-',
+  res.render('request', { title: `Заявка № ${request.id}`, user: req.profile, request });
+}
+
+export async function newRequest(req: CustomRequest, res: Response) {
+  const services = await Service.findAll();
+  const splitServices = [[], [], [], []];
+
+  for (const s in services) {
+    const catId = services[s].category
+
+    splitServices[catId].push(services[s])
   };
 
-  res.render('srequest', { title: `Заявка № ${request.id}`, reducedName: user.firstName ?? 'Клиент', request });
-};
+  res.render('new-request', { title: 'Новая заявка', user: req.profile, splitServices });
+}
 
-export const registerRequest = async (req: Request, res: Response) => {
-  const requestData = req.body;
-  const user = req.user as User;
+export async function createRequest(req: CustomRequest, res: Response) {
+  var requestsData = req.body;
+  console.log(requestsData);
 
-  for (const service in requestData.service) {
-    const serviceData = await Service.findByPk(requestData.service[service]);
-
-    if (!requestData.comment.length) {
-      requestData.comment = null;
-    }
+  for await (const service of requestsData.services) {
+    const serviceData = await Service.findByPk(Number(service));
 
     Srequest.create({
-      userId: user.id,
+      userId: req.profile.id,
       serviceId: serviceData.id,
       count: 1,
       cost: serviceData.cost,
       total: serviceData.cost,
-      comment: requestData.comment,
+      scheduledTime: requestsData.scheduledTime || null,
+      comment: requestsData.comment || null,
       status: 1,
       specialistId: null,
     });
   }
 
   res.status(201).redirect('/requests');
-};
+}
 
-export const getAllUserRequests = async (req: Request, res: Response) => {
-  const user = req.user as User;
+export async function updateRequest(req: Request, res: Response) {
+  var requestData = req.body;
+console.log(`===================================
+${requestData}`);
 
-  let requests = await Srequest.findAll({where: { userId: user.id }, include: {
-    model: Service,
-    as: 'service',
-    attributes: ['name', 'unit']
-  }})
-  const services = await Service.findAll();
-
-  let fullRequests = requests.map(request => {
-    const formattedDate = `${request.createdAt.toLocaleDateString()} ${request.createdAt.toTimeString().slice(0, 5)}`;
-
-    return {
-      id: request.id,
-      createdAt: formattedDate,
-      name: request.service.name,
-      unit: request.service.unit,
-      count: request.count,
-      cost: request.cost,
-      total: request.total,
-      status: statusColor(request.status)
-    };
-  });
-
-  const splitServices = [[], [], [], []];
-
-  for (const s in services) {
-    const catId = services[s].category
-
-    splitServices[catId].push(services[s])
-  };
-
-  res.render('requests', { title: 'Заявки', reducedName: user.firstName ?? 'Клиент', splitServices, fullRequests });
-};
-
-export const getAllRequests = async (req: Request, res: Response) => {
-  const user = req.user as User;
-
-  let requests = await Srequest.findAll({ include: [{
-    model: Service,
-    as: 'service',
-    attributes: ['name', 'unit']
-  }, {
-    model: User,
-    as:'specialist',
-    attributes: ['firstName']
-  }, {
-    model: User,
-    as:'user',
-    attributes: ['firstName', 'phoneNumber']
-  }]})
-  const services = await Service.findAll();
-
-  const fullRequests = requests.map(request => {
-    const formattedDate = `${request.createdAt.toLocaleDateString()} ${request.createdAt.toTimeString().slice(0, 5)}`;
-
-    return {
-      id: request.id,
-      createdAt: formattedDate,
-      user: {
-        firstName: request.user.firstName,
-        phoneNumber: request.user.phoneNumber
-      },
-      name: request.service.name,
-      status: statusColor(request.status)
-    };
-  });
-
-  const splitServices = [[], [], [], []];
-
-  for (const s in services) {
-    const catId = services[s].category
-
-    splitServices[catId].push(services[s])
-  };
-
-  res.render('admin/requests', { title: 'Заявки', reducedName: user.firstName ?? 'Клиент', splitServices, fullRequests });
-};
-
-export const getAdminRequest = async (req: Request, res: Response) => {
-  const user = req.user as User;
-  const srequestId = req.params.id;
-  const srequestData = await Srequest.findByPk(srequestId, { include: [{
-    model: Service,
-    as: 'service',
-    attributes: ['name', 'unit']
-  }, {
-    model: User,
-    as:'specialist',
-    attributes: ['firstName']
-  }, {
-    model: User,
-    as:'user',
-    attributes: ['firstName', 'phoneNumber']
-  }] });
-
-  const formattedDate = `${srequestData.createdAt.toLocaleDateString()}  ${srequestData.createdAt.toTimeString().slice(0, 5)}`;
-  const request = {
-    id: srequestData.id,
-    createdAt: formattedDate,
-    name: srequestData.service.name,
-    unit: srequestData.service.unit,
-    count: srequestData.count,
-    cost: srequestData.cost,
-    total: srequestData.total,
-    status: {id: srequestData.status, ...statusColor(srequestData.status)},
-    comment: srequestData.comment ?? '-',
-    specialist: srequestData.specialist?.firstName ?? '-',
-  };
-
-  res.render('admin/request', { title: `Заявка № ${request.id}`, reducedName: user.firstName ?? 'Клиент', request });
-};
-
-export const updateAdminRequest = async (req: Request, res: Response) => {
-  const requestData = req.body;
-
-  if (!requestData.count || !requestData.cost) {
-    return res.redirect('/admin/requests/' + req.params.id);
-  }
+  requestData.total = requestData.cost * requestData.count;
 
   await Srequest.update(requestData, {
     where: {
@@ -197,5 +160,5 @@ export const updateAdminRequest = async (req: Request, res: Response) => {
     }
   });
 
-  res.redirect('/admin/requests/' + req.params.id)
-};
+  res.redirect('/requests/' + req.params.id);
+}

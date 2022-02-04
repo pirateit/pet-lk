@@ -2,34 +2,40 @@ extends layout
 
 block content
   .login
-    .container.login__cont
-      .login__cont-l
-        //- img.login__img(src="/img/login-form.jpg", alt="")
-      .login__cont-r
-        h1.login__center Регистрация
-        .msg-error
+    .login__box
+      .login__image
+      .login__form
+        h1.center Регистрация
+        .input-section#msg-error
           if error === 'existsError'
-            span.msg-error__text Данный номер уже зарегистрирован.
-            a.login__link(href="/restore")  Восстановить пароль?
+            span.msg-error__text= message
+            a.link(href="/restore")  Восстановить пароль?
           else if error === 'codeError'
-            span.msg-error__text Неверно указан код подтверждения
-        form.register__form(id="register__form", method="POST", action="/register")
-          .form__row.register__phone-check
+            span.msg-error__text= message
+          else if error === 'getCodeError'
+            span.msg-error__text= message
+          else if error === 'error'
+            span.msg-error__text= message
+        form.register__form#register-form(, method="POST", action="/register")
+          .input-section#register-phone-check
             label(for="tel") Номер телефона:
             input.input.input-text(type="tel", name="phoneNumber", id="tel", data-validate-field="tel", placeholder="+7 (___) ___-__-__", required, autofocus)
-            span.msg-info На указанный номер телефона прийдёт СМС с кодом подтверждения
-          .form__row.register__code-button
-            a.btn.register__btn-code Отправить код
-          .form__row.register__code-submit
-            label(for="confirm-code") Код подтверждения:
-            input.input.input-text(type="number", name="confirmCode", id="confirm-code", data-validate-field="confirm-code" autocomplete="off")
-            | Не получили код? -&nbsp;
-            a.login__link.register__btn-code(href="javascript:void(0)") Отправить заново
-            label(for="password") Новый пароль:
-            input.input.input-text(type="password", name="password", id="password", data-validate-field="password" placeholder="Пароль")
-            label(for="repeat-password") Новый пароль повторно:
-            input.input.input-text(type="password", name="repeat-password", id="repeat-password", data-validate-field="repeat-password", placeholder="Пароль")
-            button.btn.register__btn(type="submit") Подтвердить
-          .form__row.login__center
-            a.login__link(href="/") На страницу авторизации
+            span.msg-warning__text На указанный номер телефона прийдёт СМС с кодом подтверждения
+          .input-section.center#register-code-button
+            button.btn.btn_fill.register__btn-code Отправить код
+          .register__code-submit
+            .input-section
+              label(for="confirm-code") Код подтверждения:
+              input.input.input-text(type="number", name="confirmCode", id="confirm-code", data-validate-field="confirm-code", placeholder="****", autocomplete="off")
+              | Не получили код? -&nbsp;
+              button.link.register__btn-code(href="javascript:void(0)") Отправить повторно
+            .input-section
+              label(for="password") Новый пароль:
+              input.input.input-text(type="password", name="password", id="password", data-validate-field="password" placeholder="Пароль")
+              label(for="repeat-password") Новый пароль повторно:
+              input.input.input-text(type="password", name="repeat-password", id="repeat-password", data-validate-field="repeat-password", placeholder="Пароль")
+            .input-section.center
+              button.btn.btn_fill(type="submit") Подтвердить
+          .login__links.center
+            a.link(href="/") На страницу авторизации
 

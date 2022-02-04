@@ -1,0 +1,40 @@
+extends layout
+
+block content
+  .wrapper
+    div.nav
+      include nav
+    main.main
+      section
+        a.btn.btn_fill.btn-back(href="/users") Назад
+      section
+        h2 Пользователь&nbsp;
+          span.phone= userProfile.phoneNumber
+        .block
+          form.my__form#my__form(method="POST", action="/users/" + userProfile.id)
+            .input-section
+              h3 Личные данные
+              label(for="firstName") Имя:
+              input.input.input-text(type="text", name="firstName", id="firstName", data-validate-field="firstName", placeholder="Имя", value=userProfile.firstName)
+            .input-section
+              h3 Контакты для связи
+              label(for="phoneNumber") Телефон:
+              input.input.input-text(type="tel", name="phoneNumber", id="tel", data-validate-field="tel", placeholder="+7 (___) ___-__-__", value=userProfile.phoneNumber, disabled)
+            if user.role.id === 1
+              .input-section.center
+                button.btn.btn_fill.btn-save(type="submit") Сохранить
+      section
+        h2 История обращений
+        if userProfile.requests
+          each request in userProfile.requests
+            a.requests__link(href="/requests/" + request.id)
+              .block.requests
+                .requests__info
+                  .requests__info-date= request.createdAt
+                  div= request.name
+                .requests__status
+                  .requests__status-name= request.status.name
+                  = request.total
+                  | &nbsp;₽
+    aside.info
+      include sidebar

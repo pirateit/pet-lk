@@ -5,7 +5,7 @@ import Service from '../models/service';
 export const getAllServices = async (req: Request, res: Response) => {
   const user = req.user as User;
 
-  res.render('requests', { reducedName: user.firstName ?? 'Клиент' });
+  res.render('requests', { reducedName: user.firstName ?? 'Без имени' });
 };
 
 export const registerService = async (req: Request, res: Response) => {
@@ -18,5 +18,5 @@ export const registerService = async (req: Request, res: Response) => {
     cost: req.body.cost,
   })
 
-  res.render('requests', { reducedName: user.firstName ?? 'Клиент' });
+  res.render('requests', { reducedName: user.firstName ?? 'Без имени' });
 }

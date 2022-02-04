@@ -2,42 +2,69 @@ extends layout
 
 block content
   .wrapper
-    include header
-    .container.content
+    div.nav
       include nav
-      main.main
-        section
-          .control
-            a.control__link(href="/requests")
-              span.btn-control
-              | Назад
-        section
-          h2 Заявка № #{request.id} от #{request.createdAt}
-          .request__status(class=request.status.className)= request.status.name
-          .request-data
-            div
-              .request__data-row
-                span.request__data-name Номер заявки:&nbsp;
-                | #{request.id}
-              .request__data-row
-                span.request__data-name Дата и время создания:&nbsp;
-                | #{request.createdAt}
-              .request__data-row
-                span.request__data-name Комментарий к заявке:&nbsp;
-                | #{request.comment}
-              .request__data-row
-                span.request__data-name Специалист, выполнивший заявку:&nbsp;
-                | #{request.specialist}
-            div
-              .request__data-row
-                span.request__data-name Услуга:&nbsp;
-                | #{request.name}
-              .request__data-row
-                span.request__data-name Единица измерения:&nbsp;
-                | #{request.unit}
-              .request__data-row
-                span.request__data-name Количество:&nbsp;
-                | #{request.count}
-              .request__data-row
-                span.request__data-name Сумма:&nbsp;
-                | #{request.total}
+    main.main
+      section
+        a.btn.btn_fill.btn-back(href="/requests") Назад
+      section
+        h2 Заявка № #{request.id} от #{request.createdAt}
+        form(method="POST", action="/requests/" + request.id)
+          .request__status(class=request.status.class)
+            case user.role.id
+              when 1
+                select.input(name="status")
+                  each status in statuses
+                    option(value=status.id, selected=status.name === request.status.name)= status.name
+              default
+                = request.status.name
+          .block
+            .request__data
+              .request__data-col
+                .request__data-row
+                  span.request__data-name Номер заявки:&nbsp;
+                  | #{request.id}
+                .request__data-row
+                  span.request__data-name Дата и время создания:&nbsp;
+                  | #{request.createdAt}
+                .request__data-row
+                  span.request__data-name Залпанированное время выполнения:&nbsp;
+                  if request.specialist
+                    | #{request.scheduledTime}
+                  else
+                    | -
+                .request__data-row
+                  span.request__data-name Комментарий к заявке:&nbsp;
+                  | #{request.comment}
+                .request__data-row
+                  span.request__data-name Специалист, выполнивший заявку:&nbsp;
+                  if request.specialist
+                    | #{request.specialist.firstName}
+                  else
+                    | -
+              .request__data-col
+                .request__data-row
+                  span.request__data-name Услуга:&nbsp;
+                  | #{request.name}
+                .request__data-row
+                  span.request__data-name Единица измерения:&nbsp;
+                  | #{request.unit}
+                .request__data-row
+                  span.request__data-name Стоимость:&nbsp;
+                  if user.role.id === 1
+                    input#request-cost.input.input-text(type="number", name="cost", value=request.cost, autocomplete="off")
+                  else
+                    | #{request.cost} &#8381;
+                .request__data-row
+                  span.request__data-name Количество:&nbsp;
+                  if user.role.id === 1
+                    input#request-count.input.input-text(type="number", name="count", value=request.count, autocomplete="off")
+                  else
+                    | #{request.count}
+                .request__data-row
+                  span.request__data-name Сумма:&nbsp;
+                  span#request-total #{request.total} &#8381;
+            if user.role.id === 1
+              button.btn.btn_fill.btn-save(type="submit") Сохранить
+    aside.info
+      include sidebar

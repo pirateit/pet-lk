@@ -1,17 +1,19 @@
-import { DataTypes, Model, Optional } from 'sequelize';
+import { Association, DataTypes, Model, Optional } from 'sequelize';
 import bcrypt from 'bcrypt';
 import sequelize from '../config/sequelize';
+import Srequest from './srequest';
 
 interface UserAttributes {
   id: number;
   firstName: string | null;
   role: number;
   phoneNumber: number;
+  discount: number;
   password: string;
   isActive: boolean;
 }
 
-interface UserCreationAttributes extends Optional<UserAttributes, "id" | "firstName" | "role" | "isActive"> { }
+interface UserCreationAttributes extends Optional<UserAttributes, "id" | "firstName" | "role" | "discount" | "isActive"> { }
 
 class User extends Model<UserAttributes, UserCreationAttributes>
   implements UserAttributes {
@@ -19,10 +21,17 @@ class User extends Model<UserAttributes, UserCreationAttributes>
   public firstName: string | null;
   public role!: number;
   public phoneNumber!: number;
+  public discount!: number;
   public password!: string;
   public isActive!: boolean;
 
   public readonly createdAt!: Date;
+
+  declare readonly requests?: Srequest[];
+
+  declare static associations: {
+    requests: Association<User, Srequest>;
+  };
 
   public async isValidPassword(password: string): Promise<boolean> {
     const user = this;
@@ -51,6 +60,11 @@ User.init(
       type: DataTypes.BIGINT,
       allowNull: false,
       unique: true,
+    },
+    discount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      allowNull: false,
     },
     password: {
       type: DataTypes.STRING(128),

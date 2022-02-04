@@ -1,17 +1,17 @@
 require('dotenv').config();
 import express from "express";
 import session from 'express-session';
-const RedisStore = require('connect-redis')(session);
+var RedisStore = require('connect-redis')(session);
 import { redisClient } from './config/redis';
 import passport from 'passport';
 import path from 'path';
 import './config/passport';
+import './models/index';
 import authRouter from './routes/auth.routes';
-import adminRouter from './routes/admin.routes';
 import usersRouter from './routes/users.routes';
 import servicesRouter from './routes/services.routes';
 import srequestsRouter from './routes/srequests.routes';
-const app = express();
+var app = express();
 
 app.set('view engine', 'pug');
 
@@ -34,7 +34,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(authRouter);
-app.use(adminRouter);
 app.use(usersRouter);
 app.use(servicesRouter);
 app.use(srequestsRouter);

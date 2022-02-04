@@ -2,27 +2,28 @@ extends layout
 
 block content
   .login
-    .container.login__cont
-      .login__cont-l
-        //- img.login__img(src="/img/login-form.jpg", alt="")
-      .login__cont-r
-        h1.login__center Вход
-        .msg-error
+    .login__box
+      .login__image
+      .login__form
+        h1.center Вход
+        .input-section#msg-error
           if error
-            p.msg-error__text Неверный номер телефона или пароль!
-        form.login__form(id="login__form", method="GET", action="/login")
-          .form__row
+            p.msg-error__text= error
+          if message
+            p.msg-warning__text= message
+        form#login-form(method="POST", action="/login")
+          .input-section
             label(for="tel") Номер телефона:
-            input.input.input-text(type="tel", name="phoneNumber", id="tel", placeholder="+7 (___) ___-__-__", data-validate-field="tel", required, autofocus)
-          .form__row
+            input.input.input-text(type="tel", name="phoneNumber", id="tel", placeholder="+7 (___) ___-__-__", value=phoneNumber, data-validate-field="tel", required)
+          .input-section
             label(for="password") Пароль:
             input.input.input-text(type="password", name="password", id="password", placeholder="Пароль", data-validate-field="password", required)
-          .form__row
-            input.checkbox(type="checkbox", value="remember", id="remember")
-            label(for="remember") Запомнить
-          .form__row
-            button.btn.login__btn(type="submit") Войти
-          .form__row.login__center
-            a.login__link(href="/restore") Забыли пароль?
-          .form__row.login__center
-            a.login__link(href="/register") Регистрация
+          .input-section.center
+            input(type="checkbox", value="remember", id="remember")
+            label(for="remember") Запомнить на 30 дней
+            button.btn.btn_fill(type="submit") Войти
+        .input-section.login__links
+          .center
+            a.link(href="/restore") Забыли пароль?
+          .center
+            a.link(href="/register") Регистрация

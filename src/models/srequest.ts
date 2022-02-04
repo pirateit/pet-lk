@@ -10,6 +10,7 @@ interface SrequestAttributes {
   count: number;
   cost: number;
   total: number;
+  scheduledTime: Date;
   comment: string;
   status: number;
   specialistId: number;
@@ -25,6 +26,7 @@ class Srequest extends Model<SrequestAttributes, SrequestCreationAttributes>
   public count!: number;
   public cost!: number;
   public total!: number;
+  public scheduledTime!: Date;
   public comment!: string;
   public status!: number;
   public specialistId!: number;
@@ -70,6 +72,9 @@ Srequest.init({
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  scheduledTime: {
+    type: DataTypes.DATE,
+  },
   comment: {
     type: new DataTypes.STRING,
   },
@@ -84,9 +89,5 @@ Srequest.init({
   tableName: 'requests',
   sequelize
 });
-
-Srequest.belongsTo(Service, { foreignKey: "serviceId", as: 'service'});
-Srequest.belongsTo(User, { foreignKey: "specialistId", as: 'specialist' });
-Srequest.belongsTo(User, { foreignKey: "userId", as: 'user' });
 
 export default Srequest;

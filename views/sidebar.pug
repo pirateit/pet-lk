@@ -1,0 +1,27 @@
+case user.role.id
+  when 1
+    .info__stats
+      h3 Статистика
+      | Всего заявок:&nbsp;
+      = stats.countRequests
+      .info__stats-count
+        | - Активных:&nbsp;
+        = stats.activeRequests
+      | Всего пользователей:&nbsp;
+      = stats.countUsers
+  default
+    a(href="javascript:void(0)")
+      .discount
+        div
+          .discount__lvl Ваш бонус
+          span.discount__how Как увеличить скидку?
+        .discount__percent
+          =user.discount
+          | %
+.info__data
+  .info__menu
+    a.info__menu-settings(href="/profile") Настройки
+  if user.firstName
+    .info__name= user.firstName
+  .info__role= user.role.name
+  .info__phone.phone= user.phoneNumber
