@@ -1,0 +1,34 @@
+extends layout
+
+block content
+  .wrapper
+    div.nav
+      include nav
+    main.main
+      section
+        a.btn.btn_fill.btn-back(href="/services") Назад
+      section
+      h2 Редактирование услуги
+      .block
+        form(method="POST", action="/services/" + service.id)
+          .input-section
+            label(for="category") Категория:
+            select#category.input(name="category", required)
+              each category in categories
+                option(value=category.id, selected=service.category.id === category.id)= category.name
+          .input-section
+            label(for="name") Название:
+            textarea#name.input(type="text", name="name", rows="3", required)
+              = service.name
+          .input-section
+            label(for="unit") Единица измерения:
+            select#unit.input(name="unit", required)
+              each unit in units
+                option(value=unit, selected=service.unit === unit)= unit
+          .input-section
+            label(for="cost") Стоимость:
+            input#cost.input(type="number", name="cost", value=service.cost required)
+          .input-section.center
+            button.btn.btn_fill.btn-save(type="submit") Соранить
+    aside.info
+      include sidebar

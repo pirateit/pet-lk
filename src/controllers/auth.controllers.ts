@@ -30,9 +30,9 @@ export const getRegisterCode = async (req: Request, res: Response) => {
   function makeRequest(): Promise<any> {
     return new Promise((resolve, reject) => {
       const request = https.request(`https://sms.ru/sms/send?api_id=${process.env.SMS_API}&to=${phoneNumber}&msg=${message}&json=1`, (response) => {
-        // if (response.statusCode !== 100) {
-        //   return res.status(503).send({ error: 'error', message: 'Произошла внутренняя ошибка. Пожалуйста, попробуйте позже.' });
-        // }
+        if (response.statusCode !== 100) {
+          return res.status(503).send({ error: 'error', message: 'Произошла внутренняя ошибка. Пожалуйста, попробуйте позже.' });
+        }
 
         response.on('data', (data) => {
           resolve(JSON.parse(data));
@@ -49,10 +49,9 @@ export const getRegisterCode = async (req: Request, res: Response) => {
 
   makeRequest()
     .then(async (res) => {
-      // if (res.status_code === 100) {
-
+      if (res.status_code === 100) {
         await setAsync(phoneNumber, confirmCode, 'EX', 60 * 15); // Save SMS code in Redis for 15 minutes
-      // }
+      }
     })
     .catch(err => console.log(err));
 

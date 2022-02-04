@@ -159,6 +159,14 @@ label {
   background-position: 25px center;
 }
 
+.btn-add {
+  padding-left: 51px;
+  background-image: url('/img/icons/add.svg');
+  background-size: 15px;
+  background-repeat: no-repeat;
+  background-position: 25px center;
+}
+
 .full-width {
   width: 100%;
 }
@@ -169,6 +177,11 @@ label {
 
 .msg-error__text {
   color: $color-red;
+}
+
+.msg-warning__box {
+  padding: 12px;
+  border: 1px solid $color-orange;
 }
 
 .msg-warning__text {
@@ -305,6 +318,9 @@ label {
   }
   &__menu-item:hover svg {
     fill: $color-blue;
+  }
+  &__menu-item:hover path {
+    stroke: $color-blue;
   }
   &__menu-item-profile {
     display: inline-block;
@@ -675,6 +691,18 @@ a.info__menu-settings {
       &__registered {
         width: 15%;
         display: block;
+      }
+      &__service-name {
+        width: 35%;
+      }
+      &__category {
+        width: 20%;
+      }
+      &__unit {
+        width: 20%;
+      }
+      &__cost {
+        width: 20%;
       }
     }
   }

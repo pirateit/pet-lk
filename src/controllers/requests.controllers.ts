@@ -3,8 +3,9 @@ import { CustomRequest } from '../middleware/interface';
 import User from '../models/user';
 import Srequest from '../models/srequest';
 import Service from '../models/service';
-import { getStatuses, statusColor } from '../middleware/request';
-import { convertTime } from '../middleware/time';
+import { getStatuses, statusColor } from '../utils/request';
+import { convertTime } from '../utils/time';
+import * as fs from 'fs'
 
 export async function getRequests(req: CustomRequest, res: Response) {
   if (req.profile.role.id === 1) {
@@ -112,8 +113,8 @@ export async function getRequest(req: CustomRequest, res: Response) {
 }
 
 export async function newRequest(req: CustomRequest, res: Response) {
-  const services = await Service.findAll();
-  const splitServices = [[], [], [], []];
+  var services = await Service.findAll();
+  var splitServices = [[], [], [], [], []];
 
   for (const s in services) {
     const catId = services[s].category
@@ -125,11 +126,8 @@ export async function newRequest(req: CustomRequest, res: Response) {
 }
 
 export async function createRequest(req: CustomRequest, res: Response) {
-  var requestsData = req.body;
-  console.log(requestsData);
-
-  for await (const service of requestsData.services) {
-    const serviceData = await Service.findByPk(Number(service));
+  async function createDBRequest(id: number, req) {
+    var serviceData = await Service.findByPk(id);
 
     Srequest.create({
       userId: req.profile.id,
@@ -144,13 +142,21 @@ export async function createRequest(req: CustomRequest, res: Response) {
     });
   }
 
+  var requestsData = req.body;
+
+  if (typeof requestsData.services === 'string') {
+    createDBRequest(Number(requestsData.services), req);
+  } else {
+    for await (const service of requestsData.services) {
+      createDBRequest(Number(service), req);
+    }
+  }
+
   res.status(201).redirect('/requests');
 }
 
 export async function updateRequest(req: Request, res: Response) {
   var requestData = req.body;
-console.log(`===================================
-${requestData}`);
 
   requestData.total = requestData.cost * requestData.count;
 

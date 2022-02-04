@@ -13,6 +13,7 @@ import servicesRouter from './routes/services.routes';
 import srequestsRouter from './routes/srequests.routes';
 var app = express();
 
+app.set("views", path.join(__dirname, "../views"));
 app.set('view engine', 'pug');
 
 // app.use(favicon()) // npm serve-favicon
@@ -38,6 +39,6 @@ app.use(usersRouter);
 app.use(servicesRouter);
 app.use(srequestsRouter);
 
-app.listen(process.env.APP_PORT || 3000, () => {
+app.listen(process.env.APP_PORT || 80, () => {
   console.log(`Server started successfully.`);
 });

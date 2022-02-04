@@ -20,6 +20,9 @@ block content
               optgroup(label="Сети")
                 each service in splitServices[3]
                   option(value=service.id) #{service.name} (#{service.cost} &#8381;)
+              optgroup(label="Видеонаблюдение")
+                each service in splitServices[4]
+                  option(value=service.id) #{service.name} (#{service.cost} &#8381;)
               optgroup(label="Другое")
                 each service in splitServices[0]
                   option(value=service.id) #{service.name}

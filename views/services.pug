@@ -1,0 +1,30 @@
+extends layout
+
+block content
+  .wrapper
+    div.nav
+      include nav
+    main.main.full-width
+      section
+        h2 Услуги
+        .block
+          | Фильтр:
+          .table
+            .flex-table.header
+              .flex-row.table__id ID
+              .flex-row.first.table__service-name Наименование
+              .flex-row.table__category Категория
+              .flex-row.table__unit Ед. изм.
+              .flex-row.table__cost Стоимость
+            each service of services
+              .flex-table.row
+                a.admin-requests__link(href="/services/" + service.id)
+                .flex-row.table__id= service.id
+                .flex-row.first.table__service-name= service.name
+                .flex-row.table__category= service.category.name
+                .flex-row.table__unit= service.unit
+                .flex-row.table__cost= service.cost
+      section
+        a.btn.btn_fill.btn-add(href="/add-service") Добавить
+    aside.info
+      include sidebar

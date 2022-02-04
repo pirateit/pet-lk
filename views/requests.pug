@@ -49,23 +49,23 @@ block content
                       .requests__status-name= request.status.name
                       div= request.total
                         | &nbsp;₽
-            section
-              h2 История обращений
-              if completedRequests && completedRequests.total !== 0
-                each request in completedRequests.items
-                  a.requests__link(href="/requests/" + request.id)
-                    .block.requests
-                      .requests__info
-                        .requests__info-date= request.createdAt
-                        div= request.name
-                      .requests__status
-                        .requests__status-name= request.status.name
-                        = request.total
-                        | &nbsp;₽
-              else
-                .msg-warning__text История выполненых заявок ещё пуста
-                  if activeRequests.length === 0
-                    | .&nbsp;
-                    a.link(href="/new-request") Создать новую заявку?
+          section
+            h2 История обращений
+            if completedRequests && completedRequests.total !== 0
+              each request in completedRequests.items
+                a.requests__link(href="/requests/" + request.id)
+                  .block.requests
+                    .requests__info
+                      .requests__info-date= request.createdAt
+                      div= request.name
+                    .requests__status
+                      .requests__status-name= request.status.name
+                      = request.total
+                      | &nbsp;₽
+            else
+              .msg-warning__text История выполненых заявок ещё пуста
+                if activeRequests.length === 0
+                  | .&nbsp;
+                  a.link(href="/new-request") Создать новую заявку?
     aside.info
       include sidebar

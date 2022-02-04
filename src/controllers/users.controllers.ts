@@ -4,9 +4,9 @@ import bcrypt from 'bcrypt';
 import User from '../models/user';
 import Srequest from '../models/srequest';
 import Service from '../models/service';
-import { statusColor } from '../middleware/request';
+import { statusColor } from '../utils/request';
 import { userRole } from '../utils/user';
-import { convertTime } from '../middleware/time';
+import { convertTime } from '../utils/time';
 
 export async function getProfile(req: CustomRequest, res: Response) {
   if (req.profile.role.id === 1) {
@@ -32,7 +32,7 @@ export async function getUsers(req: CustomRequest, res: Response) {
     }
   });
 
-  res.render('users', { title: 'Все пользователи', user: req.profile, stats: req.stats, users });
+  res.render('users', { title: 'Пользователи', user: req.profile, stats: req.stats, users });
 }
 
 export async function getUser(req: CustomRequest, res: Response) {
